@@ -3,22 +3,23 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:restaurant/data/utilisies.dart';
-import 'package:restaurant/main.dart';
 import 'package:restaurant/models/commande.dart';
 import 'package:restaurant/layouts/components.dart';
 import 'package:http/http.dart' as http;
-import 'package:restaurant/models/panier.dart';
 import 'package:restaurant/models/personnel.dart';
-import 'package:scoped_model/scoped_model.dart';
 
 class CommandePage extends StatefulWidget {
-  CommandePage({Key? key}) : super(key: key);
+  CommandePage({Key? key, required this.commandes, required this.personnel})
+      : super(key: key);
+  List<Commande> commandes;
+  Personnel personnel;
 
   @override
   _CommandePageState createState() => _CommandePageState();
 }
 
 class _CommandePageState extends State<CommandePage> {
+  late List<Commande> commandes;
   int total = 0;
   bool launch = false;
   bool response = true;
@@ -26,41 +27,38 @@ class _CommandePageState extends State<CommandePage> {
 
   @override
   void initState() {
+    this.commandes = widget.commandes;
     this.total = this.updteTotale();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ScopedModelDescendant<Panier>(builder: (context, child, model) {
-      return Scaffold(
-        appBar: AppBar(
-            centerTitle: true,
-            title: Text('Commandes'),
-            leading: IconButton(
-              icon: Icon(
-                Icons.arrow_back,
-                color: Color(0xFF545D68),
+    return Scaffold(
+      appBar: AppBar(
+          centerTitle: true,
+          title: Text('Commandes'),
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: Color(0xFF545D68),
+            ),
+            onPressed: () {
+              Navigator.pop(context, commandes);
+            },
+          )),
+      body: commandes.isNotEmpty
+          ? commandeItem()
+          : Center(
+              child: Text(
+                'Aucune commande',
+                style: _style,
               ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            )),
-        body: model.commandes.isNotEmpty
-            ? listeCommandes(panier.commandes)
-            : Center(
-                child: Text(
-                  'Aucune commande',
-                  style: _style,
-                ),
-              ),
-      );
-    });
+            ),
+    );
   }
 
-  Widget commandeItem(Commande cmd) {
-    final panier = ScopedModel.of<Panier>(context);
-
+  Widget _ligneCommande(Commande cmd) {
     return Container(
       margin: EdgeInsets.all(6),
       padding: EdgeInsets.all(8.0),
@@ -120,7 +118,7 @@ class _CommandePageState extends State<CommandePage> {
                   child: Icon(Icons.delete),
                   onTap: () {
                     setState(() {
-                      panier.delete(cmd);
+                      commandes.remove(cmd);
                     });
                   },
                 )
@@ -208,6 +206,7 @@ class _CommandePageState extends State<CommandePage> {
                                     numTable: _numController.text);
                                 if (isDone) {
                                   Navigator.pop(context);
+                                  print("COLLLLLLLLLLLLLLLl");
                                 }
                               }
                             }
@@ -224,14 +223,14 @@ class _CommandePageState extends State<CommandePage> {
     return response.statusCode == 200;
   }
 
-  Widget listeCommandes(List<Commande> commandes) {
+  Widget commandeItem() {
     return Column(
       children: [
         Expanded(
           child: ListView.builder(
             itemCount: commandes.length,
             itemBuilder: (context, index) {
-              return commandeItem(commandes[index]);
+              return _ligneCommande(commandes[index]);
             },
           ),
         ),
@@ -265,13 +264,10 @@ class _CommandePageState extends State<CommandePage> {
   Future<bool> sendCommande({
     required String numTable,
   }) async {
-    final panier = ScopedModel.of<Panier>(context).commandes;
-    final personnel = ScopedModel.of<Personnel>(context);
-
     final data = {
       'num_table': numTable,
-      'personnel_id': personnel.id,
-      'commandes': encodeToJson(panier),
+      'personnel_id': widget.personnel.id,
+      'commandes': encodeToJson(commandes),
     };
 
     print(jsonEncode(data));
@@ -283,19 +279,12 @@ class _CommandePageState extends State<CommandePage> {
             },
             body: jsonEncode(data));
 
-    print(res.statusCode);
-
-    if(res.statusCode == 201 ){
-      ScopedModel.of<Panier>(context).clear();
-      return true;
-    }
-    return false;
+    return res.statusCode == 201;
   }
 
   int updteTotale() {
     int total = 0;
-    final panier = ScopedModel.of<Panier>(context);
-    panier.commandes.forEach((element) {
+    commandes.forEach((element) {
       total += element.quantite * int.parse(element.plat.price);
     });
 

@@ -1,4 +1,6 @@
-class Personnel {
+import 'package:scoped_model/scoped_model.dart';
+
+class Personnel extends Model {
   final int id, idPoste;
   final String nom, prenom, dateNaissance;
 

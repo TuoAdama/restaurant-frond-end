@@ -2,16 +2,14 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:restaurant/data/utilisies.dart';
+import 'package:restaurant/layouts/CommandePage.dart';
 import 'package:restaurant/layouts/ItemCategoryList.dart';
 import 'package:restaurant/layouts/bottom_navigation.dart';
 import 'package:restaurant/models/Category.dart';
 import 'package:restaurant/models/commande.dart';
-import 'package:restaurant/models/panier.dart';
 import 'package:restaurant/models/personnel.dart';
 import 'package:restaurant/models/plat.dart';
 import 'package:restaurant/layouts/components.dart';
-import 'package:restaurant/pages/table.dart';
-import 'package:scoped_model/scoped_model.dart';
 
 class Acceuil extends StatefulWidget {
   final Personnel personnel;
@@ -27,6 +25,7 @@ class _AppState extends State<Acceuil> {
 
   List<Category> categories = Utilisies.categories;
   List<Plat> plats = Utilisies.plats;
+  List<Commande> commandes = [];
 
   int it = 0;
 
@@ -37,40 +36,32 @@ class _AppState extends State<Acceuil> {
 
   @override
   Widget build(BuildContext context) {
-    
     plats = Utilisies.plats;
-    
-    Personnel personnel = widget.personnel;
 
-    return ScopedModel<Personnel>(
-      model: personnel,
-      child: MaterialApp(
-          home: Scaffold(
-              appBar: AppBar(
-                backgroundColor: Colors.white,
-                elevation: 1.0,
-                centerTitle: true,
-                title: Text(
-                  'Menus',
-                  style: TextStyle(
-                      fontFamily: 'Varela',
-                      fontSize: 20.0,
-                      color: Color(0xFF545D68)),
-                ),
-                actions: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.fastfood,
-                      color: Color(0xFF545D68),
-                    ),
-                    onPressed: () {},
-                  )
-                ],
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 1.0,
+          centerTitle: true,
+          title: Text(
+            'Menus',
+            style: TextStyle(
+                fontFamily: 'Varela', fontSize: 20.0, color: Color(0xFF545D68)),
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(
+                Icons.fastfood,
+                color: Color(0xFF545D68),
               ),
-              bottomNavigationBar: BottomNavigation(
-              ),
-              body: main())),
-    );
+              onPressed: changePage,
+            )
+          ],
+        ),
+        bottomNavigationBar: BottomNavigation(
+          pressItem: changePage,
+        ),
+        body: main());
   }
 
   Widget main() {
@@ -133,8 +124,6 @@ class _AppState extends State<Acceuil> {
   }
 
   List<Widget> _buildPlatItem(List<Plat> plats) {
-    final panier = ScopedModel.of<Panier>(context);
-
     return plats
         .map((plat) => Padding(
               padding:
@@ -182,7 +171,7 @@ class _AppState extends State<Acceuil> {
                               fontSize: 14.0),
                         ),
                         operationButton(Icons.add, () {
-                          Iterable<Commande> iterable = panier.commandes
+                          Iterable<Commande> iterable = commandes
                               .where((element) => element.plat == plat);
                           if (iterable.length > 0) {
                             showModal(iterable.first);
@@ -200,8 +189,7 @@ class _AppState extends State<Acceuil> {
   }
 
   void showModal(Commande cmd) {
-    final panier = ScopedModel.of<Panier>(context);
-    bool cmdExist = panier.commandes.contains(cmd);
+    bool cmdExist = commandes.contains(cmd);
 
     showModalBottomSheet(
         context: context,
@@ -252,11 +240,11 @@ class _AppState extends State<Acceuil> {
                 ElevatedButton(
                     onPressed: () {
                       if (!cmdExist) {
-                        panier..add(cmd);
+                        commandes.add(cmd);
                       } else {
                         print('Contient déjà');
                       }
-                      Navigator.pop(context, [cmdExist]);
+                      Navigator.pop(context, [commandes, cmdExist]);
                     },
                     child: Text(cmdExist ? 'Modifier' : 'Ajouter au panier'))
               ],
@@ -264,7 +252,7 @@ class _AppState extends State<Acceuil> {
           });
         }).then((value) {
       String msg = "";
-      if (value) {
+      if (value[1]) {
         msg = "commande modifiée avec succès";
       } else {
         msg = "commande ajoutée avec succès";
@@ -277,8 +265,12 @@ class _AppState extends State<Acceuil> {
     }).whenComplete(() => print("ok"));
   }
 
-  void tablePage() {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => TablePage()));
+  void changePage() async{
+    commandes = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CommandePage(
+                            commandes: commandes,
+                            personnel: widget.personnel)));
   }
 }

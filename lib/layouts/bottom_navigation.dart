@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant/layouts/CommandePage.dart';
+import 'package:restaurant/pages/table.dart';
 
 class BottomNavigation extends StatefulWidget {
-  const BottomNavigation({Key? key, required this.pressItem}) : super(key: key);
-
-  final Function pressItem;
+  const BottomNavigation({Key? key,}) : super(key: key);
 
   @override
   _BottomNavigationState createState() => _BottomNavigationState();
@@ -15,6 +15,8 @@ class _BottomNavigationState extends State<BottomNavigation> {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      iconSize: 20,
+      type: BottomNavigationBarType.fixed,
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.fastfood),
@@ -26,7 +28,11 @@ class _BottomNavigationState extends State<BottomNavigation> {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.av_timer),
-          label: 'commandes',
+          label: 'cmd',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.av_timer),
+          label: 'table',
         ),
       ],
       currentIndex: currentIndex,
@@ -42,15 +48,27 @@ class _BottomNavigationState extends State<BottomNavigation> {
         case 1:
           break;
         case 2:
-          widget.pressItem();
+          toCommandePage(context);
+          break;
+        case 3:
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => TablePage()));
           break;
         default:
       }
     });
   }
+
   set setCurrentIndex(int index) {
     setState(() {
       this.currentIndex = index;
     });
+  }
+
+  void toCommandePage(context) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => CommandePage()));
   }
 }
