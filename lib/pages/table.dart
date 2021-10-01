@@ -1,13 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:restaurant/data/utilisies.dart';
-import 'package:restaurant/models/commande.dart';
 import 'package:http/http.dart' as http;
 import 'package:restaurant/models/commande_item.dart';
 import 'package:restaurant/models/personnel.dart';
 import 'package:restaurant/models/satut.dart';
+import 'package:restaurant/pages/detail.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class TablePage extends StatefulWidget {
@@ -18,13 +17,16 @@ class TablePage extends StatefulWidget {
 }
 
 class _TablePageState extends State<TablePage> {
-  List<dynamic> commandes = <CommandeItem>[];
+  List<CommandeItem> commandes = <CommandeItem>[];
+  List<CommandeItem> filtre = <CommandeItem>[];
+  TextEditingController fieldController = TextEditingController();
 
   @override
   void initState() {
-    fecth_commandes().then((value) {
+    fecthCommandes().then((value) {
       setState(() {
         commandes = value;
+        filtre = value;
       });
     });
     super.initState();
@@ -36,13 +38,15 @@ class _TablePageState extends State<TablePage> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.check),
         onPressed: () {
-          setState(() {
-            print(commandes);
-          });
+          print(filtreData("TAB001").first.numTable);
         },
       ),
+
       appBar: AppBar(
         elevation: 0.0,
+        title: Text("Etat des commandes"),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [
@@ -53,19 +57,25 @@ class _TablePageState extends State<TablePage> {
           SizedBox(
             height: 12,
           ),
-          commandes.isNotEmpty
-              ? Expanded(
-                  child: ListView.builder(
-                      itemCount: commandes.length,
-                      itemBuilder: (ctx, index) => cart(commandes[index])),
-                )
-              : CircularProgressIndicator(),
+          commandes.isNotEmpty ? allCart() : CircularProgressIndicator(),
         ],
       ),
     );
   }
 
+  Widget allCart() {
+    return Expanded(
+      child: RefreshIndicator(
+        onRefresh: refresh,
+        child: ListView.builder(
+            itemCount: filtre.length,
+            itemBuilder: (ctx, index) => cart(filtre[index])),
+      ),
+    );
+  }
+
   Widget cart(CommandeItem item) {
+    print("CART : ${item.numTable}");
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       width: 200,
@@ -117,7 +127,13 @@ class _TablePageState extends State<TablePage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      DetailPage(numTable: item.numTable)));
+                        },
                         child: Text("Details"),
                       ),
                       Icon(Icons.arrow_right),
@@ -157,19 +173,20 @@ class _TablePageState extends State<TablePage> {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 12),
       child: TextField(
+        controller: fieldController,
         decoration: InputDecoration(
           border: OutlineInputBorder(),
           contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-          hintText: 'recherche',
+          hintText: 'numero de table',
           focusColor: Colors.black,
         ),
+        onChanged: onSearch,
       ),
     );
   }
 
-  Future<List<CommandeItem>> fecth_commandes() async {
+  Future<List<CommandeItem>> fecthCommandes() async {
     final personnel = ScopedModel.of<Personnel>(context);
-    print(personnel.id);
 
     http.Response response = await http.get(
         Uri.parse(Utilisies.host + "api/commande/personnel/${personnel.id}"));
@@ -179,12 +196,50 @@ class _TablePageState extends State<TablePage> {
       return [];
     }
 
-    return data(jsonDecode(response.body));
+    return jsonToPlat(jsonDecode(response.body));
   }
 
-  List<CommandeItem> data(List<dynamic> results) {
+  List<CommandeItem> jsonToPlat(List<dynamic> results) {
     return results.map((element) {
       return CommandeItem.toJson(element);
     }).toList();
+  }
+
+  List<CommandeItem> filtreData(String value) {
+    return this
+        .commandes
+        .where((element) => element.numTable.contains(value))
+        .toList();
+  }
+
+  Future<void> refresh() async{
+    fecthCommandes().then((value) {
+      setState(() {
+        commandes = value;
+        filtre = value;
+      });
+
+      if(fieldController.text.isNotEmpty){
+        onSearch(fieldController.text);
+      }
+
+    });
+    
+  }
+
+  void onSearch(String search) {
+    if (search.isNotEmpty) {
+      final data = filtreData(search);
+      setState(() {
+        filtre = data;
+      });
+      filtre.forEach((element) {
+        print(element.numTable);
+      });
+    } else {
+      setState(() {
+        filtre = this.commandes;
+      });
+    }
   }
 }

@@ -9,7 +9,7 @@ class Plat {
         required this.imagePath,
         required this.id});
 
-  factory Plat.fromJson(Map<String, dynamic> values){
+  factory Plat.fromJson(Map<dynamic, dynamic> values){
     return new Plat(category:values["categorie"]['libelle'],
                     name: values['libelle'],
                     price: values["prix"].toString(),

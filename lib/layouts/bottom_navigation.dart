@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant/layouts/CommandePage.dart';
+import 'package:restaurant/pages/profil.dart';
 import 'package:restaurant/pages/table.dart';
 
 class BottomNavigation extends StatefulWidget {
-  const BottomNavigation({Key? key,}) : super(key: key);
+  const BottomNavigation({
+    Key? key,
+  }) : super(key: key);
 
   @override
   _BottomNavigationState createState() => _BottomNavigationState();
@@ -23,21 +26,20 @@ class _BottomNavigationState extends State<BottomNavigation> {
           label: 'Calls',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.list_alt),
-          label: 'panier',
+          icon: Icon(Icons.av_timer),
+          label: 'table',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.av_timer),
           label: 'cmd',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.av_timer),
-          label: 'table',
+          icon: Icon(Icons.person),
+          label: 'profils',
         ),
       ],
       currentIndex: currentIndex,
       onTap: onTapItem,
-      selectedItemColor: Color(0XFFCC8053),
     );
   }
 
@@ -46,13 +48,14 @@ class _BottomNavigationState extends State<BottomNavigation> {
       currentIndex = index;
       switch (currentIndex) {
         case 1:
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => TablePage()));
           break;
         case 2:
           toCommandePage(context);
           break;
         case 3:
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => TablePage()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => Profil()));
           break;
         default:
       }
@@ -67,8 +70,6 @@ class _BottomNavigationState extends State<BottomNavigation> {
 
   void toCommandePage(context) {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => CommandePage()));
+        context, MaterialPageRoute(builder: (context) => CommandePage()));
   }
 }

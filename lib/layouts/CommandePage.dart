@@ -35,17 +35,10 @@ class _CommandePageState extends State<CommandePage> {
     return ScopedModelDescendant<Panier>(builder: (context, child, model) {
       return Scaffold(
         appBar: AppBar(
-            centerTitle: true,
-            title: Text('Commandes'),
-            leading: IconButton(
-              icon: Icon(
-                Icons.arrow_back,
-                color: Color(0xFF545D68),
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            )),
+          centerTitle: true,
+          title: Text('Commandess'),
+          automaticallyImplyLeading: false,
+        ),
         body: model.commandes.isNotEmpty
             ? listeCommandes(panier.commandes)
             : Center(
@@ -220,7 +213,7 @@ class _CommandePageState extends State<CommandePage> {
 
   Future<bool> checkNumTable(String value) async {
     http.Response response =
-        await http.get(Uri.parse(Utilisies.host + "api/tableclient/" + value));
+        await http.get(Uri.parse(Utilisies.host + "/tableclient/" + value));
     return response.statusCode == 200;
   }
 
@@ -277,7 +270,7 @@ class _CommandePageState extends State<CommandePage> {
     print(jsonEncode(data));
 
     http.Response res =
-        await http.post(Uri.parse(Utilisies.host + "api/commande/save"),
+        await http.post(Uri.parse(Utilisies.host + "/commande/save"),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
             },
@@ -285,7 +278,7 @@ class _CommandePageState extends State<CommandePage> {
 
     print(res.statusCode);
 
-    if(res.statusCode == 201 ){
+    if (res.statusCode == 201) {
       ScopedModel.of<Panier>(context).clear();
       return true;
     }

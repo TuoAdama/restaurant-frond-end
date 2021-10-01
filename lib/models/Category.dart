@@ -1,6 +1,6 @@
 class Category {
   final int id;
-  final String libelle;
+  String libelle;
   final String avatar;
 
   Category({required this.id, required this.libelle, required this.avatar});

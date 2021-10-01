@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:restaurant/Acceuil.dart';
 import 'package:restaurant/layouts/components.dart';
 import 'package:restaurant/models/personnel.dart';
+import 'package:restaurant/pages/welcome.dart';
 import 'layouts/bezierContainer.dart';
 
 class LoginPage extends StatelessWidget {
@@ -42,7 +43,8 @@ class LoginPage extends StatelessWidget {
                       prenom: "Adama", dateNaissance: "1998-06-28");
 
                     //Navigator.push(context, MaterialPageRoute(builder: (context) => App(personnel)));
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => Acceuil(personnel)));
+                    //Navigator.push(context, MaterialPageRoute(builder: (context) => Acceuil(personnel)));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => Welcome(personnel: personnel,)));
                     //Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
                   }
                 ),
