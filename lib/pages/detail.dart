@@ -39,13 +39,6 @@ class _DetailPageState extends State<DetailPage> {
         title: Text(widget.numTable),
         centerTitle: true,
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.circle),
-        onPressed: () {
-          final person = ScopedModel.of<Personnel>(context);
-          print("${person.nom}");
-        },
-      ),
       body: platCommandes.isNotEmpty
           ? allItem()
           : Center(

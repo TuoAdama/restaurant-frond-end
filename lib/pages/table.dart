@@ -35,12 +35,6 @@ class _TablePageState extends State<TablePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.check),
-        onPressed: () async {
-          await fecthCommandes();
-        },
-      ),
       appBar: AppBar(
         elevation: 0.0,
         title: Text("Etat des commandes"),

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant/models/personnel.dart';
-import 'package:restaurant/pages/detail.dart';
 import 'package:restaurant/pages/login_page.dart';
 import 'package:restaurant/models/panier.dart';
-import 'package:restaurant/pages/table.dart';
 import 'package:restaurant/pages/welcome.dart';
 import 'package:scoped_model/scoped_model.dart';
 

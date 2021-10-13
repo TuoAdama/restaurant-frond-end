@@ -24,7 +24,15 @@ class Personnel extends Model {
     this.dateNaissance = personnel.dateNaissance;
 
     notifyListeners();
+  }
 
+  void clear(){
+    this.id = null;
+    this.idPoste = null;
+    this.nom = null;
+    this.prenom = null;
+    this.dateNaissance = null;
+    notifyListeners();
   }
 
   @override

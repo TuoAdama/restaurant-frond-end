@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant/app/api_request.dart';
 import 'package:restaurant/models/personnel.dart';
 import 'package:restaurant/pages/table.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:http/http.dart' as http;
 
 class Profil extends StatelessWidget {
   const Profil({Key? key}) : super(key: key);
@@ -15,7 +17,6 @@ class Profil extends StatelessWidget {
     final titleStyle = TextStyle(fontWeight: FontWeight.w500);
 
     return Scaffold(
-
       body: Container(
         padding: EdgeInsets.only(top: 20),
         child: Column(
@@ -119,9 +120,11 @@ class Profil extends StatelessWidget {
                         Navigator.pop(context);
                       },
                       child: Text("Annuler")),
-                  TextButton(onPressed: () {
-                    
-                  }, child: Text("Confirmer")),
+                  TextButton(
+                      onPressed: () {
+                        logout(context);
+                      },
+                      child: Text("Confirmer")),
                 ],
               ),
             )
@@ -129,5 +132,18 @@ class Profil extends StatelessWidget {
         )
       ],
     );
+  }
+
+  void logout(BuildContext context) async {
+    ScopedModel.of<Personnel>(context).clear();
+    http.Response response = await ApiRequest.getRequest("/logout");
+    int statusCode = response.statusCode;
+    debugPrint('status code: $statusCode');
+    if (statusCode == 200) {
+      Navigator.pushNamed(context, "/");
+    }else{
+      debugPrint('status code: $statusCode');
+      throw Exception("[class: Profil, methode: logout()]");
+    }
   }
 }
