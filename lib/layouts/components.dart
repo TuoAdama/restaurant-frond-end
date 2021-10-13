@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-Widget formInput(String label, {bool isPassword = false}) {
+Widget formInput(String label,{required TextEditingController controller, bool isPassword = false}) {
   return Container(
     margin: EdgeInsets.symmetric(vertical: 10),
     child: Column(
@@ -11,13 +11,14 @@ Widget formInput(String label, {bool isPassword = false}) {
           label,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
         ),
-        TextField(
+        TextFormField(
           obscureText: isPassword,
+          controller: controller,
           decoration: InputDecoration(
             border: InputBorder.none,
             fillColor: Color(0xfff3f3f4),
             filled: true,
-          ),
+          )
         )
       ],
     ),

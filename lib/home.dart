@@ -1,11 +1,10 @@
-import 'dart:io';
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:restaurant/data/utilisies.dart';
+import 'package:restaurant/app/api_request.dart';
 import 'package:restaurant/layouts/ItemCategoryList.dart';
-import 'package:restaurant/layouts/bottom_navigation.dart';
 import 'package:restaurant/models/Category.dart';
 import 'package:restaurant/models/commande.dart';
 import 'package:restaurant/models/panier.dart';
@@ -14,6 +13,7 @@ import 'package:restaurant/models/plat.dart';
 import 'package:restaurant/layouts/components.dart';
 import 'package:restaurant/pages/table.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:http/http.dart' as http;
 
 class Acceuil extends StatefulWidget {
   final Personnel personnel;
@@ -72,7 +72,8 @@ class _AppState extends State<Acceuil> {
   Widget main() {
     isFiltre = true;
 
-    return RefreshIndicator(onRefresh: onRefresh,
+    return RefreshIndicator(
+      onRefresh: onRefresh,
       child: Column(
         children: [
           Padding(
@@ -105,7 +106,8 @@ class _AppState extends State<Acceuil> {
                                 child: Text(
                                   'Categories',
                                   style: TextStyle(
-                                      fontSize: 20, fontWeight: FontWeight.bold),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ),
                               isFiltre
@@ -117,7 +119,6 @@ class _AppState extends State<Acceuil> {
                                         keyCatList.currentState!.initialIndex =
                                             -1;
                                         searchController.clear();
-                                        
                                       },
                                       child: Text("Tout afficher"))
                                   : SizedBox(),
@@ -187,8 +188,8 @@ class _AppState extends State<Acceuil> {
                       height: 75.0,
                       decoration: BoxDecoration(
                           image: DecorationImage(
-                              image: NetworkImage(
-                                  Utilisies.host + "storage/${plat.imagePath}"),
+                              image:
+                                  NetworkImage(ApiRequest.asset(plat.imagePath)),
                               fit: BoxFit.contain)),
                     ),
                     SizedBox(
@@ -251,8 +252,8 @@ class _AppState extends State<Acceuil> {
                   height: 100.0,
                   decoration: BoxDecoration(
                       image: DecorationImage(
-                          image: NetworkImage(
-                              Utilisies.host + "storage/${cmd.plat.imagePath}"),
+                          image:
+                              NetworkImage(ApiRequest.asset(cmd.plat.imagePath)),
                           fit: BoxFit.contain)),
                 ),
                 Text(cmd.plat.name),
@@ -334,11 +335,11 @@ class _AppState extends State<Acceuil> {
   }
 
   void initData() async {
-    await Utilisies.getCategories().then((value) {
+    await this.getCategories().then((value) {
       categories = value;
     });
 
-    await Utilisies.getPlats().then((value) {
+    await this.getPlats().then((value) {
       setState(() {
         plats = value;
         filtrePlats = value;
@@ -346,21 +347,42 @@ class _AppState extends State<Acceuil> {
     });
   }
 
-  Future<void> onRefresh() async{
-  
-  this.keyCatList.currentState!.initialIndex = -1;
-  Future.delayed(Duration(seconds: 10));
+  Future<void> onRefresh() async {
+    this.keyCatList.currentState!.initialIndex = -1;
+    Future.delayed(Duration(seconds: 10));
 
-
-   await Utilisies.getCategories().then((value) {
+    await this.getCategories().then((value) {
       categories = value;
     });
 
-    await Utilisies.getPlats().then((value) {
+    
+
+    await this.getPlats().then((value) {
       setState(() {
         plats = value;
         filtrePlats = value;
       });
     });
+  }
+
+  Future<List<Category>> getCategories() async {
+    http.Response response = await ApiRequest.getRequest("/categorie");
+    
+    if(response.statusCode == 200){
+      List data = jsonDecode(response.body);
+      return data.map((e) => Category.formJson(e)).toList();
+    }
+    throw Exception("[class: Accueil, methode: getCategorie()]");
+  }
+
+  Future<List<Plat>> getPlats() async {
+    http.Response response = await ApiRequest.getRequest("/plat");
+
+    if (response.statusCode == 200) {
+      List data = jsonDecode(response.body);
+      return data.map((e) => Plat.fromJson(e)).toList();
+    }
+
+    throw Exception("[class: Accueil, methode: getPlats()]");
   }
 }

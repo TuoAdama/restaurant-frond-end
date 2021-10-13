@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:restaurant/data/utilisies.dart';
+import 'package:restaurant/app/api_request.dart';
 import 'package:http/http.dart' as http;
 import 'package:restaurant/models/commande_item.dart';
 import 'package:restaurant/models/personnel.dart';
@@ -37,11 +37,10 @@ class _TablePageState extends State<TablePage> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.check),
-        onPressed: () {
-          print(filtreData("TAB001").first.numTable);
+        onPressed: () async {
+          await fecthCommandes();
         },
       ),
-
       appBar: AppBar(
         elevation: 0.0,
         title: Text("Etat des commandes"),
@@ -75,7 +74,8 @@ class _TablePageState extends State<TablePage> {
   }
 
   Widget cart(CommandeItem item) {
-    print("CART : ${item.numTable}");
+    final personnel = ScopedModel.of<Personnel>(context);
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       width: 200,
@@ -131,8 +131,10 @@ class _TablePageState extends State<TablePage> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      DetailPage(numTable: item.numTable)));
+                                  builder: (context) => DetailPage(
+                                        numTable: item.numTable,
+                                        idPersonnel: personnel.id!,
+                                      )));
                         },
                         child: Text("Details"),
                       ),
@@ -187,15 +189,17 @@ class _TablePageState extends State<TablePage> {
 
   Future<List<CommandeItem>> fecthCommandes() async {
     final personnel = ScopedModel.of<Personnel>(context);
+    debugPrint("Recupération des commandes effectuées par ${personnel.nom} ${personnel.prenom}");
 
-    http.Response response = await http.get(
-        Uri.parse(Utilisies.host + "api/commande/personnel/${personnel.id}"));
+    http.Response response = await ApiRequest.getRequest("commande/personnel/${personnel.id}");
 
     if (response.statusCode != 200) {
       print("Statut code: ${response.statusCode}");
       return [];
     }
 
+    print("resultat: ${response.body}");
+    print(response.statusCode);
     return jsonToPlat(jsonDecode(response.body));
   }
 
@@ -212,19 +216,17 @@ class _TablePageState extends State<TablePage> {
         .toList();
   }
 
-  Future<void> refresh() async{
+  Future<void> refresh() async {
     fecthCommandes().then((value) {
       setState(() {
         commandes = value;
         filtre = value;
       });
 
-      if(fieldController.text.isNotEmpty){
+      if (fieldController.text.isNotEmpty) {
         onSearch(fieldController.text);
       }
-
     });
-    
   }
 
   void onSearch(String search) {

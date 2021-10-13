@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:restaurant/data/utilisies.dart';
+import 'package:restaurant/app/api_request.dart';
 import 'package:restaurant/models/Category.dart';
 
 typedef OnItemCategorySelected = void Function(Category);
@@ -35,7 +35,7 @@ class ItemCategory extends StatelessWidget {
                     height: 64,
                     decoration: BoxDecoration(
                         image: DecorationImage(
-                            image: NetworkImage(Utilisies.host+"${category.avatar}"),
+                            image: NetworkImage(ApiRequest.asset(category.avatar)),
                                 //NetworkImage(Utilisies.host+"${category.avatar}"),
                             fit: BoxFit.cover)),
                   ),

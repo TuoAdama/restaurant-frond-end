@@ -119,7 +119,9 @@ class Profil extends StatelessWidget {
                         Navigator.pop(context);
                       },
                       child: Text("Annuler")),
-                  TextButton(onPressed: () {}, child: Text("Confirmer")),
+                  TextButton(onPressed: () {
+                    
+                  }, child: Text("Confirmer")),
                 ],
               ),
             )

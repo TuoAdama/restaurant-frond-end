@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:restaurant/data/utilisies.dart';
+import 'package:restaurant/app/api_request.dart';
 import 'package:restaurant/main.dart';
 import 'package:restaurant/models/commande.dart';
 import 'package:restaurant/layouts/components.dart';
@@ -72,8 +72,7 @@ class _CommandePageState extends State<CommandePage> {
             child: Container(
               height: 75.0,
               child: Image(
-                image: NetworkImage(
-                    Utilisies.host + "storage/${cmd.plat.imagePath}"),
+                image: NetworkImage(ApiRequest.asset(cmd.plat.imagePath)),
                 fit: BoxFit.contain,
               ),
             ),
@@ -213,7 +212,7 @@ class _CommandePageState extends State<CommandePage> {
 
   Future<bool> checkNumTable(String value) async {
     http.Response response =
-        await http.get(Uri.parse(Utilisies.host + "/tableclient/" + value));
+        await ApiRequest.getRequest("/tableclient/$value");
     return response.statusCode == 200;
   }
 
@@ -269,12 +268,7 @@ class _CommandePageState extends State<CommandePage> {
 
     print(jsonEncode(data));
 
-    http.Response res =
-        await http.post(Uri.parse(Utilisies.host + "/commande/save"),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-            },
-            body: jsonEncode(data));
+    http.Response res = await ApiRequest.postRequest("/commande/save", params: data);
 
     print(res.statusCode);
 

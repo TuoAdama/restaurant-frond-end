@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:restaurant/data/utilisies.dart';
 import 'package:restaurant/layouts/ItemCategoryList.dart';
 import 'package:restaurant/models/Category.dart';
 import 'package:restaurant/models/personnel.dart';
@@ -21,24 +20,13 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   GlobalKey formKey = GlobalKey();
 
-  List<Category> categories = Utilisies.categories;
+  List<Category> categories = [];
   List<Plat> plats = [];
 
   final String host = "http://10.0.2.2:8000";
 
   @override
   void initState() {
-    // fetchCategories().then((value) => {
-    //       setState(() {
-    //         categories = value;
-    //       })
-    //     });
-
-    // fetchPlats().then((value) => {
-    //       setState(() {
-    //         plats = value;
-    //       })
-    //     });
     super.initState();
   }
 
@@ -67,31 +55,10 @@ class _AppState extends State<App> {
         )),
         child: ListView(
           children: [
-            // searchField(),
-            // SizedBox(
-            //   height: 25,
-            // ),
-            // Container(
-            //   margin: EdgeInsets.only(left: 12),
-            //   child: Text(
-            //     "Catégories",
-            //     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, ),
-            //   ),
-            // ),
-            // SizedBox(height: 20,),
             catogeryList(),
             ItemCategoryList(categories: categories,
               onSelected: (Category cat){}
             )
-            // SizedBox(height: 20,),
-            // Container(
-            //   margin: EdgeInsets.only(left: 12),
-            //   child: Text(
-            //     "Tout",
-            //     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, ),
-            //   ),
-            // ),
-            //platsList(),
           ],
         ),
       ),
@@ -136,7 +103,6 @@ class _AppState extends State<App> {
                 image: DecorationImage(
                     image:
                     AssetImage('assets/img_1.png'),
-                        //NetworkImage(Utilisies.host+"${category.avatar}"),
                     fit: BoxFit.cover)),
           ),
           SizedBox(

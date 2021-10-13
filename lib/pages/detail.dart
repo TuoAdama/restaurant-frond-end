@@ -2,16 +2,18 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:restaurant/data/utilisies.dart';
+import 'package:restaurant/app/api_request.dart';
 import 'package:restaurant/models/commande.dart';
 import 'package:restaurant/models/personnel.dart';
 import 'package:restaurant/models/plat.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class DetailPage extends StatefulWidget {
-  DetailPage({Key? key, required this.numTable}) : super(key: key);
+  DetailPage({Key? key, required this.numTable, required this.idPersonnel})
+      : super(key: key);
 
   String numTable;
+  int idPersonnel;
 
   @override
   _DetailPageState createState() => _DetailPageState();
@@ -40,7 +42,8 @@ class _DetailPageState extends State<DetailPage> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.circle),
         onPressed: () {
-          gettableCmd();
+          final person = ScopedModel.of<Personnel>(context);
+          print("${person.nom}");
         },
       ),
       body: platCommandes.isNotEmpty
@@ -73,7 +76,7 @@ class _DetailPageState extends State<DetailPage> {
               decoration: BoxDecoration(
                   image: DecorationImage(
                       image: NetworkImage(
-                          "http://10.0.3.2:8000/storage/${commande.plat.imagePath}"),
+                          ApiRequest.asset(commande.plat.imagePath)),
                       fit: BoxFit.contain)),
             ),
           ),
@@ -117,10 +120,8 @@ class _DetailPageState extends State<DetailPage> {
   Future<List<Commande>> gettableCmd() async {
     var results = <Commande>[];
 
-    final persId = ScopedModel.of<Personnel>(context).id;
-
-    http.Response response = await http.get(Uri.parse(Utilisies.host +
-        "api/commande/table=${widget.numTable}/personnel=$persId"));
+    http.Response response = await ApiRequest.getRequest(
+        "commande/table=${widget.numTable}/personnel=${widget.idPersonnel}");
 
     if (response.statusCode == 200) {
       final commandes = jsonDecode(response.body);
